@@ -1,7 +1,11 @@
 import './App.css';
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 const App = () => {
+
+  const [students, setStudents] = useState([])
+  const [isEditing, setIsEditing] = useState(true)
   const [post, setPost] = useState({
     name: '',
     year: '',
@@ -10,10 +14,32 @@ const App = () => {
     phone: '',
   })
 
-  const createForm = (e) => {
+  useEffect(() => {
+    axios.get(`https://6299cac86f8c03a97849acc4.mockapi.io/students`)
+        .then((res) => {
+          setPost(res.data)
+        })
+  }, [])
+
+  const deletePost = async (id) => {
+    await axios.delete(`https://6299cac86f8c03a97849acc4.mockapi.io/students/${id}`)
+    const studentList = students.filter(item => item.id !== id)
+    setStudents(studentList)
+  }
+
+  const handleEdit = (id) => {
+    setIsEditing(true)
+  }
+
+  const createForm = async (e) => {
     e.preventDefault()
-    console.log(post)
+    const upLoadUser = await axios.post(`https://6299cac86f8c03a97849acc4.mockapi.io/students`, post)
+    setPost([...post, upLoadUser.data])
     setPost('')
+  }
+
+  const handleChange  = (e) => {
+    setPost({...post, [e.target.name]: e.target.value})
   }
 
   const handleEnter = (e) => {
@@ -35,7 +61,7 @@ const App = () => {
                    className="name"
                    required
                    value={post.name}
-                   onChange={(e) => setPost({...post, name: e.target.value})}/>
+                   onChange={handleChange}/>
           </div>
           <div className="formBox">
             <label className="labelYear">Year: </label>
@@ -44,7 +70,7 @@ const App = () => {
                    className="year"
                    required
                    value={post.year}
-                   onChange={(e) => setPost({...post, year: e.target.value})}/>
+                   onChange={handleChange}/>
           </div>
           <div className="formBox">
             <label className="labelGroup">Group: </label>
@@ -53,7 +79,7 @@ const App = () => {
                    className="group"
                    required
                    value={post.group}
-                   onChange={(e) => setPost({...post, group: e.target.value})}/>
+                   onChange={handleChange}/>
           </div>
           <div className="formBox">
               <label className="labelEmail">Email: </label>
@@ -62,7 +88,7 @@ const App = () => {
                      className="email"
                      required
                      value={post.email}
-                     onChange={(e) => setPost({...post, email: e.target.value})}/>
+                     onChange={handleChange}/>
           </div>
           <div className="formBox">
             <label className="labelPhone">Phone: </label>
@@ -71,9 +97,15 @@ const App = () => {
                    className="phone"
                    required
                    value={post.phone}
-                   onChange={(e) => setPost({...post, phone: e.target.value})}/>
+                   onChange={handleChange}/>
           </div>
-          <button type="submit" className="formBtn">Creat</button>
+          <div>
+            {
+              <button type="submit" className="formBtn">
+                {isEditing ? "Update" : "Create"}
+              </button>
+            }
+          </div>
         </form>
       </div>
       <table className="table-auto w-full">
@@ -103,27 +135,38 @@ const App = () => {
               className="w-1/6 min-w-[160px] text-lg font-semibold text-white py-4 lg:py-7 px-3 lg:px-4 border-l border-transparent">
             Phone Number
           </th>
+          <th className="w-1/6 min-w-[160px] text-lg font-semibold text-white py-4 lg:py-7 px-3 lg:px-4 border-l border-transparent">
+            Delete
+          </th>
         </tr>
         </thead>
         <tbody>
         <tr>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.id}
           </td>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.name}
           </td>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.year}
           </td>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.group}
           </td>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.email}
           </td>
           <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            .com
+            {post.phone}
+          </td>
+          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+            <button style={{backgroundColor: "#DBAF41FF", color: "wheat", border: "1px solid grey", padding: "8px", borderRadius: "8px", margin: "0px 2px 0"}}
+                    onClick={() => handleEdit(students.id)}
+            >Edit</button>
+            <button style={{backgroundColor: "#DB4141FF", color: "wheat", border: "1px solid grey", padding: "8px", borderRadius: "8px"}}
+                    onClick={() => deletePost(students.id)}
+            >Delete</button>
           </td>
         </tr>
         </tbody>
