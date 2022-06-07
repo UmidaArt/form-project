@@ -5,8 +5,10 @@ import axios from "axios";
 const App = () => {
 
   const [students, setStudents] = useState([])
-  const [isEditing, setIsEditing] = useState(true)
-  const [post, setPost] = useState({
+  const [isLoading, setIsLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [update, setUpdate] = useState(null)
+  const [newStudent, setNewStudent] = useState({
     name: '',
     year: '',
     group: '',
@@ -14,12 +16,56 @@ const App = () => {
     phone: '',
   })
 
-  useEffect(() => {
-    axios.get(`https://6299cac86f8c03a97849acc4.mockapi.io/students`)
-        .then((res) => {
-          setPost(res.data)
-        })
-  }, [])
+  const handleChange  = (e) => {
+    setNewStudent({...newStudent, [e.target.name]: e.target.value})
+  }
+
+  const handleEdit = (student) => {
+    setIsEditing(true)
+    setUpdate(student.id)
+    setNewStudent({
+      name: student.name,
+      year: student.year,
+      group: student.group,
+      email: student.email,
+      phone: student.phone,
+    })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const upLoadUser = await axios.post(`https://6299cac86f8c03a97849acc4.mockapi.io/students`, newStudent)
+    setStudents([...students, upLoadUser.data])
+    setNewStudent({
+      name: '',
+      year: '',
+      group: '',
+      email: '',
+      phone: '',
+    })
+  }
+
+  const handleEnter = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      setNewStudent('')
+    }
+  }
+
+  const updateUser = async (e) => {
+    e.preventDefault()
+    const updateUser = await axios.put(`https://6299cac86f8c03a97849acc4.mockapi.io/students/${update}`, newStudent)
+    const updateStudents = students.map(item => item.id === updateUser.data.id ? updateUser.data : item)
+    setStudents(updateStudents)
+    setIsEditing(false)
+    setNewStudent({
+      name: '',
+      year: '',
+      group: '',
+      email: '',
+      phone: '',
+    })
+  }
 
   const deletePost = async (id) => {
     await axios.delete(`https://6299cac86f8c03a97849acc4.mockapi.io/students/${id}`)
@@ -27,86 +73,118 @@ const App = () => {
     setStudents(studentList)
   }
 
-  const handleEdit = (id) => {
-    setIsEditing(true)
-  }
+  useEffect(() => {
+    axios.get('https://6299cac86f8c03a97849acc4.mockapi.io/students')
+        .then((res) => {
+          setStudents(res.data)
+          setNewStudent(res.data)
+          setIsLoading(false)
+        })
+  }, [])
 
-  const createForm = async (e) => {
-    e.preventDefault()
-    const upLoadUser = await axios.post(`https://6299cac86f8c03a97849acc4.mockapi.io/students`, post)
-    setPost([...post, upLoadUser.data])
-    setPost('')
-  }
-
-  const handleChange  = (e) => {
-    setPost({...post, [e.target.name]: e.target.value})
-  }
-
-  const handleEnter = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      console.log(post)
-      setPost('')
-    }
+  if (isLoading) {
+    return "Loading"
   }
 
   return (
     <div className="App">
-      <div className="formBlock">
-        <form  onSubmit={createForm} onKeyPress={handleEnter}>
-          <div className="formBox">
-            <label className="labelName">Name: </label>
-            <input type="text"
-                   name="name"
-                   className="name"
-                   required
-                   value={post.name}
-                   onChange={handleChange}/>
-          </div>
-          <div className="formBox">
-            <label className="labelYear">Year: </label>
-            <input type="number"
-                   name="year"
-                   className="year"
-                   required
-                   value={post.year}
-                   onChange={handleChange}/>
-          </div>
-          <div className="formBox">
-            <label className="labelGroup">Group: </label>
-            <input type="text"
-                   name="group"
-                   className="group"
-                   required
-                   value={post.group}
-                   onChange={handleChange}/>
-          </div>
-          <div className="formBox">
-              <label className="labelEmail">Email: </label>
-              <input type="email"
-                     name="email"
-                     className="email"
-                     required
-                     value={post.email}
-                     onChange={handleChange}/>
-          </div>
-          <div className="formBox">
-            <label className="labelPhone">Phone: </label>
-            <input type="number"
-                   name="phone"
-                   className="phone"
-                   required
-                   value={post.phone}
-                   onChange={handleChange}/>
-          </div>
-          <div>
-            {
-              <button type="submit" className="formBtn">
-                {isEditing ? "Update" : "Create"}
+      <div className="flex items-center justify-center p-12">
+        <div className="mx-auto w-full max-w-[550px]">
+          <form onSubmit={isEditing ? updateUser : handleSubmit} onKeyPress={handleEnter}>
+            <div className="mb-5">
+              <label
+                  htmlFor="name"
+                  className="mb-3 block text-base font-medium text-[#07074D]"
+              >
+                Name
+              </label>
+              <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  placeholder="Enter your name"
+                  value={newStudent.name}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              />
+            </div>
+            <div className="mb-5">
+              <label
+                  htmlFor="year"
+                  className="mb-3 block text-base font-medium text-[#07074D]"
+              >
+                Year
+              </label>
+              <input
+                  type="date"
+                  name="year"
+                  id="year"
+                  placeholder="Enter your year"
+                  value={newStudent.year}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              />
+            </div>
+            <div className="mb-5">
+              <label
+                  htmlFor="group"
+                  className="mb-3 block text-base font-medium text-[#07074D]"
+              >
+               Group
+              </label>
+              <input
+                  type="text"
+                  name="group"
+                  id="group"
+                  placeholder="Enter your group"
+                  value={newStudent.group}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              />
+            </div>
+            <div className="mb-5">
+              <label
+                  htmlFor="email"
+                  className="mb-3 block text-base font-medium text-[#07074D]"
+              >
+                Email
+              </label>
+              <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="example@domain.com"
+                  value={newStudent.email}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              />
+            </div>
+            <div className="mb-5">
+              <label
+                  htmlFor="phone"
+                  className="mb-3 block text-base font-medium text-[#07074D]"
+              >
+                Phone
+              </label>
+              <input
+                  type="string"
+                  name="phone"
+                  id="phone"
+                  placeholder="Enter your phone"
+                  value={newStudent.phone}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              />
+            </div>
+            <div>
+              <button
+                  className="hover:shadow-form rounded-md bg-[#6A64F1] py-3 px-8 text-base font-semibold text-white outline-none"
+              >
+                {isEditing ? 'Update' : 'Create'}
               </button>
-            }
-          </div>
-        </form>
+            </div>
+          </form>
+        </div>
       </div>
       <table className="table-auto w-full">
         <thead>
@@ -136,39 +214,60 @@ const App = () => {
             Phone Number
           </th>
           <th className="w-1/6 min-w-[160px] text-lg font-semibold text-white py-4 lg:py-7 px-3 lg:px-4 border-l border-transparent">
-            Delete
+            Actions
           </th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.id}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.name}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.year}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.group}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.email}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            {post.phone}
-          </td>
-          <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
-            <button style={{backgroundColor: "#DBAF41FF", color: "wheat", border: "1px solid grey", padding: "8px", borderRadius: "8px", margin: "0px 2px 0"}}
-                    onClick={() => handleEdit(students.id)}
-            >Edit</button>
-            <button style={{backgroundColor: "#DB4141FF", color: "wheat", border: "1px solid grey", padding: "8px", borderRadius: "8px"}}
-                    onClick={() => deletePost(students.id)}
-            >Delete</button>
-          </td>
-        </tr>
+        {
+          students.map((student) => (
+              <tr key={student.id}>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.id}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.name}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.year}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.group}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.email}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  {student.phone}
+                </td>
+                <td className="text-center text-dark font-medium text-base py-5 px-2 bg-[#F3F6FF] border-b border-l border-[#E8E8E8]">
+                  <button style={{
+                    backgroundColor: "#DBAF41FF",
+                    color: "wheat",
+                    border: "1px solid grey",
+                    padding: "8px",
+                    borderRadius: "8px",
+                    margin: "0px 2px 0"
+                  }}
+                          onClick={() => handleEdit(student)}
+
+                  >Edit
+                  </button>
+                  <button style={{
+                    backgroundColor: "#DB4141FF",
+                    color: "wheat",
+                    border: "1px solid grey",
+                    padding: "8px",
+                    borderRadius: "8px"
+                  }}
+                          onClick={() => deletePost(student.id)}
+
+                  >Delete
+                  </button>
+                </td>
+              </tr>
+          ))
+        }
         </tbody>
       </table>
     </div>

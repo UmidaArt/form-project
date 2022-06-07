@@ -8,42 +8,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #dbe8ec;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.formBlock {
-  padding: 40px;
-}
-.formBox {
-  text-align: left;
-  margin: 10px 0;
-}
 form {
   text-align: left;
-}
-input {
-  border: 2px solid grey;
-}
-.formBtn {
-  border: 2px solid grey;
-}
-.labelName {
-  margin-right:  19px;
-}
-.labelYear {
-  margin-right: 29px;
-}
-.labelGroup {
-  margin-right: 15px;
-}
-.labelEmail {
-  margin-right: 20px;
-}
-.labelPhone {
-  margin-right: 13px;
 }
 .formBtn {
   margin: 20px 0 10px;
