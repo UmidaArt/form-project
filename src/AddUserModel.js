@@ -21,30 +21,30 @@ const AddUserModel = ({students, setStudents, setOpenModal, isEditingUser, setIs
         },
         validationSchema: Yup.object({
             name: Yup.string()
-                .min(3, 'Must be 3 characters more')
-                .max(15, 'Must be 15 characters or less')
+                .min(3, 'Must be 2 characters more')
+                .max(30, 'Must be 30 characters or less')
                 .required('Required'),
             year: Yup.string()
-                .min(3, 'Must be 3 characters more')
+                .min(2, 'Must be 2 characters more')
                 .max(20, 'Must be 20 characters or less')
                 .required('Required'),
             group: Yup.string()
-                .min(3, 'Must be 3 characters more')
-                .max(20, 'Must be 20 characters or less')
+                .min(2, 'Must be 2 characters more')
+                .max(30, 'Must be 20 characters or less')
                 .required('Required'),
             email: Yup.string().email('Invalid email address').required('Required'),
             phone: Yup.string()
-                .min(6, 'Must be 3 characters more')
+                .min(2, 'Must be 2 characters more')
                 .max(20, 'Must be 20 characters or less')
                 .required('Required'),
         }),
         onSubmit: async (values) => {
-            if (isEditingUser.name) {
-                const {data:updateUser} = await axios.put(`https://6299cac86f8c03a97849acc4.mockapi.io/students/${isEditingUser.id}`, values)
+            if (isEditingUser) {
+                const {data:updateUser} = await axios.put(`https://62b5ccd942c6473c4b3aa395.mockapi.io/students/${isEditingUser.id}`, values)
                 const updateStudentsList = students.map(item => item.id === isEditingUser.id ? updateUser : item)
                 setStudents(updateStudentsList)
             }else {
-                const upLoadUser = await axios.post(`https://6299cac86f8c03a97849acc4.mockapi.io/students`, values)
+                const upLoadUser = await axios.post(`https://62b5ccd942c6473c4b3aa395.mockapi.io/students`, values)
                 setStudents([...students, upLoadUser.data])
             }
             setOpenModal(false)

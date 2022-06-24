@@ -11,7 +11,7 @@ const App = () => {
   const [isEditingUser, setIsEditingUser] = useState(null)
 
   const deletePost = async (id) => {
-    await axios.delete(`https://6299cac86f8c03a97849acc4.mockapi.io/students/${id}`)
+    await axios.delete(`https://62b5ccd942c6473c4b3aa395.mockapi.io/students/${id}`)
     const studentList = students.filter(item => item.id !== id)
     setStudents(studentList)
   }
@@ -22,7 +22,7 @@ const App = () => {
   }
 
   useEffect(() => {
-    axios.get('https://6299cac86f8c03a97849acc4.mockapi.io/students')
+    axios.get('https://62b5ccd942c6473c4b3aa395.mockapi.io/students')
         .then((res) => {
           setStudents(res.data)
           setIsLoading(false)
